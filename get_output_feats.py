@@ -50,17 +50,11 @@ def make_acoustic_tris_feats(tris_file, node, stat):
 
 
 if __name__=="__main__":
-    option=sys.argv[1]
-    if option == 'check':
-        io_funcs = binary_io.BinaryIOCollection()
-        main_path='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/node_stats/'
-        make_acoustic_tris_feats('arctic_a0001', 'no', 'std')
-    else:
-        filelist='/home/pbaljeka/TRIS_Exps3/utils/all_list'
-        with open(filelist, 'r') as f:
-            for line in f:
-                print(line)
-                make_acoustic_tris_feats(line.strip(), 'yes', 'mean')
-                make_acoustic_tris_feats(line.strip(), 'yes', 'std')
-                make_acoustic_tris_feats(line.strip(), 'no', 'mean')
-                make_acoustic_tris_feats(line.strip(), 'no', 'std')
+    filelist='/home/pbaljeka/TRIS_Exps3/utils/all_list'
+    with open(filelist, 'r') as f:
+        for line in f:
+            print(line)
+            make_acoustic_tris_feats(line.strip(), 'yes', 'mean')
+            make_acoustic_tris_feats(line.strip(), 'yes', 'std')
+            make_acoustic_tris_feats(line.strip(), 'no', 'mean')
+            make_acoustic_tris_feats(line.strip(), 'no', 'std')

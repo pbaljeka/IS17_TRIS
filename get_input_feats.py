@@ -244,7 +244,7 @@ if __name__=="__main__":
     elif option =="nodewise":
 	indir="tris"
 	outdir="nn_tirs_trees"
-	filelist=utils_path + "all_nodes"
+	filelist=utils_path + "allnodes"
     else:
 	print("Wrong option")
 	
