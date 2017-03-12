@@ -1,0 +1,34 @@
+1. build_cg_voice
+2. Copy TRIS scripts tris_dump
+3. Make utils dir with qlist, nodenames, senonenames, statesnames, phonenames
+3. Collect nodes in tris directory and tris_terminals 
+./scripts/make_util_collect_stats.sh 
+
+4.Get_node_stats
+python scripts/get_stats.py
+
+5. Get input feats treewise and utterance wise
+python get_input_feats.py uttwise
+python get_input_feats.py nodewise
+
+6. Get output feats  utterance wise -only needed for training
+python get_output_feats.py
+
+7. Normalize input feats uttwise and treewise and output feats 
+python normalization.py normalize_train
+python normalization.py normalize_predict
+
+8. Train MLP:
+python keras_tris_mlp.py train
+
+9.Copy the normalized root senones .mean and .std  to the save dir
+scripts/copy_senones.sh
+
+10. Predict from MLP:
+python keras_tris_mlp.py predict
+
+11. Denormalize predicted parameters:
+python normalization.py denormalize
+
+12.Make rawparams and params files
+scripts/make_params.sh
