@@ -11,11 +11,11 @@ io_funcs=binary_io.BinaryIOCollection()
 #f0, acoustic feature, voicing - 1+ 50 + 1
 #frame number, linguistic feature- 1+65
 #TOTAL=123
-def load_data(filename, indir):
+def load_data(filename, indir, start, end):
     with open(indir +'/'+ filename + '.tris', 'r') as f:
         startfile=1
         for line in f:
-            line_frame=line.strip().split()[4:56]
+            line_frame=line.strip().split()[int(start):int(end)]
             mcep_frame=[]
             for i in line_frame:
                 mcep_frame.append(float(i))
@@ -39,15 +39,22 @@ def calc_stats(filename, indir, outdir):
     io_funcs.array_to_binary_file(std_vec, outfile +'.std')
 
 if __name__=="__main__":
-    main_path='/home/pbaljeka/TRIS_Exps2/cmu_us_slt/festival/'
-    indir=main_path +'/tris_terminals/'
-    outdir=main_path + '/binary_tris_terminal_stats/'
+    main_path='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/'
+    indir=main_path +'/tris/'
+    outdir=main_path + '/node_stats/'
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    filelist='/home/pbaljeka/TRIS_Exps2/cmu_us_slt-tris_utils/terminals_filelist'
+    filelist='/home/pbaljeka/TRIS_Exps3/utils/nodenames'
     with open(filelist, 'r') as f:
         for filename in f:
             print(filename)
-            calc_stats(filename.strip(), indir, outdir)
+            calc_stats(filename.strip(), indir, outdir, int(7), int(59))
+
+    filelist='/home/pbaljeka/TRIS_Exps3/utils/senones'
+    with open(filelist, 'r') as f:
+        for filename in f:
+            print(filename)
+            calc_stats(filename.strip(), indir, outdir, int(4), int(56))
+
 

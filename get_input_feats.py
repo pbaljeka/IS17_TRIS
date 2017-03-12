@@ -189,7 +189,6 @@ def get_binary_tris(tris_line, node_dict_mean, node_dict_std, question_list, sta
     line=tris_line.strip().split()
     node_mean=node_dict_mean[line[0]]
     node_std=node_dict_std[line[0]]
-    #binary_tris_frame=root_node
     question=get_element_one_hot(line[3], question_list)
     binary_tris_frame= question
     operand=binary_operand(line[4])
@@ -201,15 +200,15 @@ def get_binary_tris(tris_line, node_dict_mean, node_dict_std, question_list, sta
     #print(len(binary_tris_frame))
     return  binary_tris_frame, node_mean, node_std
 
-def make_binary_tris_feats(tris_file):
+def make_binary_tris_feats(tris_file, indir, outdir):
     io_funcs = binary_io.BinaryIOCollection()
-    main_path='/home/pbaljeka/TRIS_Exps2/'
+    main_path='/home/pbaljeka/TRIS_Exps3/'
     source_name= 'cmu_us_slt'
-    source_path = main_path + source_name + '/festival/tris/' #Change the input folder to tris if you want it nodewise
+    source_path = main_path + source_name + '/festival/'+ indir +'/' #Change the input folder to tris if you want it nodewise else coeffs
     full_path= source_path + tris_file.strip()
     node_stats_path = main_path + source_name + '/festival/node_stats/'
-    tris_utils= main_path + source_name + '-tris_utils/'
-    outdir= main_path + source_name + '/festival/nn_tris_trees/'   #Change the output folder to nn_tris_trees to save the nodewise feats there.
+    tris_utils= main_path + '/utils/'
+    outdir= main_path + source_name + '/festival/'+ outdir + '/'  #Change the output folder to nn_tris_trees to save the nodewise feats there. else nn_tris
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     outfile= outdir + tris_file.strip()
@@ -224,12 +223,10 @@ def make_binary_tris_feats(tris_file):
     with open(full_path +'.tris', 'r') as f:
         for line in f:
             if line.strip().split()[0][-1] <> "L":
-
                 binary_tris_frame, node_mean, node_std =get_binary_tris(line.strip(), node_dict_mean, node_dict_std, q_list, statenames, phonenames)
                 tris_mat.append(binary_tris_frame)
                 mean_mat.append(node_mean)
                 std_mat.append(node_std)
-    #print(final_mat[-1])
     io_funcs.array_to_binary_file(tris_mat, outfile + '.tris')
     io_funcs.array_to_binary_file(mean_mat, outfile + '.mean')
     io_funcs.array_to_binary_file(std_mat, outfile + '.std')
@@ -239,35 +236,19 @@ def make_binary_tris_feats(tris_file):
 
 if __name__=="__main__":
     option=sys.argv[1]
-    if option == 'check':
-        io_funcs = binary_io.BinaryIOCollection()
-        main_path='/home/pbaljeka/TRIS_Exps2/'
-        source_name= 'cmu_us_slt'
-       # source_path = main_path + source_name + '/festival/tris/'
-       # full_path= source_path + tris_file.strip()
-        tris_utils= main_path + source_name + '-tris_utils/'
-      #  outdir= main_path + source_name + '/festival/binary_tris/'
-       # if not os.path.exists(outdir):
-        #    os.makedirs(outdir)
-        #outfile= outdir + tris_file.strip()
-        node_stats_path = main_path + source_name + '/festival/node_stats/'
-        outfile='blah'
-        nodenames= tris_utils + '/nodenames'
-        q_list = question_list(tris_utils + '/question_list')
-        statenames = tris_utils + '/statenames'
-        phonenames = tris_utils + '/phonenames'
-        node_dict_mean, node_dict_std=make_node_dict_stat(nodenames, node_stats_path)
-        tris_line=file('example.tris').readlines()[1]
-        binary_tris_frame, node_mean, node_std =get_binary_tris(tris_line, node_dict_mean, node_dict_std, q_list, statenames, phonenames)
-        print(node_mean)
-        node_mean_true=io_funcs.load_binary_file(node_stats_path + 'm_1_NNNY.mean', 52)
-        print(node_mean_true)
-        node_std_true=io_funcs.load_binary_file(node_stats_path + 'm_1_NNNY.std', 52)
-        print(node_std)
-        print(node_std_true)
+    utils_path="/home/pbaljeka/TRIS_Exps3/utils/"
+    if option=="uttwise":
+	indir="coeffs"
+	outdir="nn_tris"
+	filelist=utils_path + "all_list"
+    elif option =="nodewise":
+	indir="tris"
+	outdir="nn_tirs_trees"
+	filelist=utils_path + "all_nodes"
     else:
-        filelist=sys.argv[1]
-        with open(filelist, 'r') as f:
-            for line in f:
-                print(line)
-                make_binary_tris_feats(line.strip())
+	print("Wrong option")
+	
+    with open(filelist, 'r') as f:
+	for line in f:
+	    print(line)
+            make_binary_tris_feats(line.strip(), indir, outdir)
