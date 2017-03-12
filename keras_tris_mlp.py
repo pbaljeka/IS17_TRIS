@@ -25,10 +25,10 @@ def load_stats(data_path, filelist, feature_dimension, ext):
     filenames=file(filelist).readlines()
     merlin_io=binary_io.BinaryIOCollection()
     for filename in filenames:
-        ym=merlin_io.load_binary_file(data_path + filename.strip() + ext[1], feature_dimension)
-        ys=merlin_io.load_binary_file(data_path + filename.strip() + ext[2], feature_dimension)
-        nm=merlin_io.load_binary_file(data_path + filename.strip() + ext[3], feature_dimension)
-        ns=merlin_io.load_binary_file(data_path + filename.strip() + ext[4], feature_dimension)
+        ym=merlin_io.load_binary_file(data_path + filename.strip() + '.ymean', feature_dimension)
+        ys=merlin_io.load_binary_file(data_path + filename.strip() + '.ystd', feature_dimension)
+        nm=merlin_io.load_binary_file(data_path + filename.strip() + '.nmean', feature_dimension)
+        ns=merlin_io.load_binary_file(data_path + filename.strip() + '.nstd', feature_dimension)
         if startfile:
             startfile=0
             ymean=ym
@@ -46,10 +46,10 @@ def load_batch_stats(data_path, filenames, feature_dimension, ext):
     startfile=1
     merlin_io=binary_io.BinaryIOCollection()
     for filename in filenames:
-        ym=merlin_io.load_binary_file(data_path + filename.strip() + ext[1], feature_dimension)
-        ys=merlin_io.load_binary_file(data_path + filename.strip() + ext[2], feature_dimension)
-        nm=merlin_io.load_binary_file(data_path + filename.strip() + ext[3], feature_dimension)
-        ns=merlin_io.load_binary_file(data_path + filename.strip() + ext[4], feature_dimension)
+        ym=merlin_io.load_binary_file(data_path + filename.strip() + '.ymean', feature_dimension)
+        ys=merlin_io.load_binary_file(data_path + filename.strip() + '.ystd', feature_dimension)
+        nm=merlin_io.load_binary_file(data_path + filename.strip() + '.nmean', feature_dimension)
+        ns=merlin_io.load_binary_file(data_path + filename.strip() + '.nstd', feature_dimension)
         if startfile:
             startfile=0
             ymean=ym
@@ -220,13 +220,13 @@ def save_model(model, model_filepath):# This does early stopping and saves the m
 def train_tris(model_name, batch_size=256, nb_epoch=20, chunksize=20, feature_dimension=[1488, 52], ext=['.tris', '.ymean', '.ystd', '.nmean', '.nstd']):
     utils_path='/home/pbaljeka/TRIS_Exps2/cmu_us_slt-tris_utils/'
     data_path='/home/pbaljeka/TRIS_Exps2/cmu_us_slt/festival/norm_nn_tris/'
-    train_list = utils_path + 'train_list'
+    train_list = utils_path + 'all_list'
     test_list = utils_path + 'test_list'
     val_list = utils_path + 'val_list'
     random_filelist = model_name + '_random_list'
     model=build_func_model(hidden_size=64)
     sgd = SGD(lr=0.04, momentum =0.5, clipvalue=0.01, decay=1e-8)
-    model.compile(loss={'ymean': 'mean_sum_error','ystd': 'mean_sum_error', 'nmean': 'mean_sum_error','nstd': 'mean_sum_error', 'ling_out': 'mean_sum_error','QA_out': 'mean_sum_error'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
+    model.compile(loss={'ymean': 'mse','ystd': 'mse', 'nmean': 'mse','nstd': 'mse', 'ling_out': 'mse','QA_out': 'mse'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
     ymean_val, ystd_val, nmean_val, nstd_val = load_stats(data_path, val_list, int(feature_dimension[1]), ext)
     ling_val, qa_val, mean_val, std_val = load_tris_data(data_path, val_list, int(feature_dimension[0]), ext[0])
 
@@ -280,7 +280,7 @@ def train_tris(model_name, batch_size=256, nb_epoch=20, chunksize=20, feature_di
 def adapt_tris(model_name, chkpt, batch_size=256, nb_epoch=20, chunksize=20, feature_dimension=[1488, 52], ext=['.tris', '.ymean', '.ystd', '.nmean', '.nstd']):
     utils_path='/home/pbaljeka/TRIS_Exps2/cmu_us_slt-tris_utils/'
     data_path='/home/pbaljeka/TRIS_Exps2/clb_exps/cmu_us_clb5fullehmm/festival/norm_nn_tris/'
-    train_list = utils_path + 'train_list'
+    train_list = utils_path + 'all_list'
     test_list = utils_path + 'test_list'
     val_list = utils_path + 'val_list'
     random_filelist = model_name + 'adapt_random_list'
@@ -303,7 +303,7 @@ def adapt_tris(model_name, chkpt, batch_size=256, nb_epoch=20, chunksize=20, fea
     model.load_weights(model_name_c+".h5")
     print("Loaded model from disk")
 
-    model.compile(loss={'ymean': 'mean_sum_error','ystd': 'mean_sum_error', 'nmean': 'mean_sum_error','nstd': 'mean_sum_error', 'ling_out': 'mean_sum_error','QA_out': 'mean_sum_error'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
+    model.compile(loss={'ymean': 'mse','ystd': 'mse', 'nmean': 'mse','nstd': 'mse', 'ling_out': 'mse','QA_out': 'mse'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
 
     for epoch_num in range(nb_epoch):
         print ("Epoch %d / %d" % (epoch_num + 1, nb_epoch) )
@@ -347,7 +347,7 @@ def adapt_tris(model_name, chkpt, batch_size=256, nb_epoch=20, chunksize=20, fea
 def retrain_tris(model_name, chkpt, batch_size=256, nb_epoch=20, chunksize=20, feature_dimension=[1488, 52], ext=['.tris', '.ymean', '.ystd', '.nmean', '.nstd']):
     utils_path='/home/pbaljeka/TRIS_Exps2/cmu_us_slt-tris_utils/'
     data_path='/home/pbaljeka/TRIS_Exps2/cmu_us_slt/festival/norm_nn_tris/'
-    train_list = utils_path + 'train_list'
+    train_list = utils_path + 'all_list'
     test_list = utils_path + 'test_list'
     val_list = utils_path + 'val_list'
     random_filelist = model_name + '_random_list'
@@ -370,7 +370,7 @@ def retrain_tris(model_name, chkpt, batch_size=256, nb_epoch=20, chunksize=20, f
     model.load_weights(model_name_c+".h5")
     print("Loaded model from disk")
 
-    model.compile(loss={'ymean': 'mean_sum_error','ystd': 'mean_sum_error', 'nmean': 'mean_sum_error','nstd': 'mean_sum_error', 'ling_out': 'mean_sum_error','QA_out': 'mean_sum_error'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
+    model.compile(loss={'ymean': 'mse','ystd': 'mse', 'nmean': 'mse','nstd': 'mse', 'ling_out': 'mse','QA_out': 'mse'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
 
     for epoch_num in range(nb_epoch):
         print ("Epoch %d / %d" % (epoch_num + 1, nb_epoch) )
@@ -423,7 +423,7 @@ def predict_tris(data_path, test_filelist, model_dir, chkpt,  save_dir,ext, n_in
 
     model.load_weights(model_name+'.h5')
     print("Loaded model from disk")
-    model.compile(loss={'ymean': 'mean_sum_error','ystd': 'mean_sum_error', 'nmean': 'mean_sum_error','nstd': 'mean_sum_error', 'ling_out': 'mean_sum_error','QA_out': 'mean_sum_error'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
+    model.compile(loss={'ymean': 'mse','ystd': 'mse', 'nmean': 'mse','nstd': 'mse', 'ling_out': 'mse','QA_out': 'mse'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
 
     merlin_io = binary_io.BinaryIOCollection()
     with open(test_filelist, 'r') as fl:
@@ -448,10 +448,10 @@ def resynth():
 if __name__=='__main__':
     option=sys.argv[1]
     feature_dimension=[1488, 52]
-    ext=['.tris', '.ymean', '.nmean', '.ystd', '.nstd']
-    batch_size = 32
+    ext=['.tris', '.ymean', '.ystd', '.nmean', '.nstd']
+    batch_size = 64
     nb_epoch = 20
-    chunksize=60
+    chunksize=120
     chkpt=8
     model_name = 'slt_tris_norm_AD_1'
     test_list= '/home/pbaljeka/TRIS_Exps2/cmu_us_slt-tris_utils/nodenames'
