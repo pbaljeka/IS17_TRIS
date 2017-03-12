@@ -3,6 +3,9 @@ import sys
 import os
 import binary_io
 
+
+#This file prepares output features for the neural network utterancewise. Its basically copying the means stored in node_stats as ymean, nmean etc.
+#Because some no nodes are missing, i am giving it the yes node means for now.(Basically making an asymmetric node symmetric)- not sure of this right.
 io_funcs = binary_io.BinaryIOCollection()
 def get_stat(nodename, main_path, feature_dimension, ext):
     io_funcs = binary_io.BinaryIOCollection()
@@ -11,12 +14,12 @@ def get_stat(nodename, main_path, feature_dimension, ext):
 
 def make_acoustic_tris_feats(tris_file, node, stat):
     io_funcs = binary_io.BinaryIOCollection()
-    main_path='/home/pbaljeka/TRIS_Exps2/'
+    main_path='/home/pbaljeka/TRIS_Exps3/'
     source_name= 'cmu_us_slt'
     source_path = main_path + source_name + '/festival/coeffs/'
     stats_path = main_path + source_name + '/festival/node_stats/'
     full_path= source_path + tris_file.strip()
-    tris_utils= main_path + source_name + '-tris_utils/'
+    tris_utils= main_path + '/utils/'
     outdir= main_path + source_name + '/festival/nn_tris/'
     if not os.path.exists(outdir):
         os.makedirs(outdir)
@@ -25,8 +28,10 @@ def make_acoustic_tris_feats(tris_file, node, stat):
     final_mat=[]
     if node == "yes":
         column_num=1
-    else:
+    elif node== "no":
         column_num=2
+    else:
+	print("Wrong option")
     collapse_nodes=['pau_3_NNYNNYYYYNYNNYYNNYN','pau_3_NNNYNNYYNYNYYN','pau_3_NNYNNYYYYNYNNYYYYNYN', 's_2_YYYYN']
     with open(full_path + '.tris', 'r') as f:
         for line in f:
@@ -48,10 +53,10 @@ if __name__=="__main__":
     option=sys.argv[1]
     if option == 'check':
         io_funcs = binary_io.BinaryIOCollection()
-        main_path='/home/pbaljeka/TRIS_Exps2/cmu_us_slt/festival/node_stats/'
+        main_path='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/node_stats/'
         make_acoustic_tris_feats('arctic_a0001', 'no', 'std')
     else:
-        filelist=sys.argv[1]
+        filelist='/home/pbaljeka/TRIS_Exps3/utils/all_list'
         with open(filelist, 'r') as f:
             for line in f:
                 print(line)
