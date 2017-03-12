@@ -28,8 +28,8 @@ def load_data(filename, indir, start, end):
     assert data_mat.shape[1]==52, "Data loading improper"
     return data_mat
 
-def calc_stats(filename, indir, outdir):
-    data_mat=load_data(filename, indir)
+def calc_stats(filename, indir, outdir, start, end):
+    data_mat=load_data(filename, indir, start, end)
     outfile= outdir +'/'+filename
     mean_vec=np.mean(data_mat,axis=0)
     io_funcs.array_to_binary_file(mean_vec, outfile +'.mean')
