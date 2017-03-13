@@ -455,7 +455,7 @@ if __name__=='__main__':
     nb_epoch = 20
     chunksize=120
     chkpt=3
-    model_name = 'slt_tris_norm_AD_1'
+    model_name = 'slt_tris_norm_AD_1-FIX'
     test_list= '/home/pbaljeka/TRIS_Exps3/utils/nodenames'
     #save_dir='/home2/pbaljeka/english_spasm_experiments/Data/predicted_features/spasm_mlp_tts_v2/'
     save_dir='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/predicted_norm_nn_tris_trees/' +model_name + '/'

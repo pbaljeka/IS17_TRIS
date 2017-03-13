@@ -73,13 +73,13 @@ def calc_std(data_path, filelist, ext, mean, chunksize=100, feature_dimension=52
     print num_frames
     return np.sqrt(temp_std / num_frames)
 
-def calc_acoustic_stats(data_path, utils_dir,  chunksize=100, feature_simension=52):
+def calc_acoustic_stats(data_path, utils_dir,  chunksize=100, feature_dimension=52):
     filelist= utils_dir + '/all_list'
     merlin_io=binary_io.BinaryIOCollection()
     for ext in ['mean', 'std']:
         print('Calculating stats for : ', ext)
-        mean_vec=calc_mean(data_path, filelist,  '.'+ext)
-        std_vec = calc_std(data_path, filelist, '.'+ext, mean_vec)
+        mean_vec=calc_mean(data_path, filelist,  '.'+ext, chunksize, feature_dimension)
+        std_vec = calc_std(data_path, filelist, '.'+ext, mean_vec, chunksize, feature_dimension)
         merlin_io.array_to_binary_file(mean_vec, utils_dir +  ext + '.mean')
         merlin_io.array_to_binary_file(std_vec, utils_dir + ext + '.std')
 
