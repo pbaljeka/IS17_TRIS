@@ -87,12 +87,12 @@ def make_rawparams_file(indir, outfile, s_dict, num_senones, true_mean, true_std
 
 
 if __name__=="__main__":
-    main_path='/home/pbaljeka/TRIS_Exps2/cmu_us_slt/festival/'
-    indir=main_path +'/binary_tris_terminal_stats/'
+    main_path='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/'
+    indir=main_path +'/predicted_norm_nn_tris_trees/un_norm_slt_tris_norm_AD_1/'
     outfile='cmu_us_slt_mcep.rawparams'
-    filelist='/home/pbaljeka/TRIS_Exps2/cmu_us_slt-tris_utils/sen_list'
-    rawparams='cmu_us_sltcg_mcep.rawparams'
-    s_number='s_numbers'
+    filelist='/home/pbaljeka/TRIS_Exps3/utils/senones'
+    rawparams='/home/pbaljeka/TRIS_Exps3/utils/cmu_us_slt_mcep.rawparams'
+    s_number='/home/pbaljeka/TRIS_Exps3/utils/senone_numbers'
     true_std=load_rawparams_std(rawparams)
     true_means=load_rawparams_mean(rawparams)
     #print(std_vec[7])

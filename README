@@ -21,8 +21,8 @@ python normalization.py normalize_predict
 8. Train MLP:
 python keras_tris_mlp.py train
 
-9.Copy the normalized root senones .mean and .std  to the save dir
-scripts/copy_senones.sh
+9.Copy the normalized root states .mean and .std  to the save dir
+scripts/copy_states.sh
 
 10. Predict from MLP:
 python keras_tris_mlp.py predict

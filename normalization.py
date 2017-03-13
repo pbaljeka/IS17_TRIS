@@ -59,7 +59,8 @@ def calc_mean(data_path, filelist, ext, chunksize=100, feature_dimension=52):
         data_mat, frames=load_batch_datasets(data_path, list(filenames_chunk), int(feature_dimension), ext)
         temp_sum=temp_sum + np.sum(data_mat, axis=0)
         num_frames += frames
-    return temp_sum / frames
+    print(num_frames)
+    return temp_sum / num_frames
 
 def calc_std(data_path, filelist, ext, mean, chunksize=100, feature_dimension=52):
     file_seq = open(filelist, 'r')
@@ -69,7 +70,8 @@ def calc_std(data_path, filelist, ext, mean, chunksize=100, feature_dimension=52
         data_mat, frames=load_batch_datasets(data_path, list(filenames_chunk), int(feature_dimension), ext)
         temp_std=temp_std + np.sum(((data_mat - np.tile(mean,(frames,1)))**2), axis=0)
         num_frames += frames
-    return np.sqrt(temp_std / frames)
+    print num_frames
+    return np.sqrt(temp_std / num_frames)
 
 def calc_acoustic_stats(data_path, utils_dir,  chunksize=100, feature_simension=52):
     filelist= utils_dir + '/all_list'
