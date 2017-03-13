@@ -218,15 +218,15 @@ def save_model(model, model_filepath):# This does early stopping and saves the m
     print("Saved saved model to disk")
 
 def train_tris(model_name, batch_size=256, nb_epoch=20, chunksize=20, feature_dimension=[1488, 52], ext=['.tris', '.ymean', '.ystd', '.nmean', '.nstd']):
-    utils_path='/home/pbaljeka/TRIS_Exps2/cmu_us_slt-tris_utils/'
-    data_path='/home/pbaljeka/TRIS_Exps2/cmu_us_slt/festival/norm_nn_tris/'
+    utils_path='/home/pbaljeka/TRIS_Exps3/utils/'
+    data_path='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/norm_nn_tris/'
     train_list = utils_path + 'all_list'
     test_list = utils_path + 'test_list'
     val_list = utils_path + 'val_list'
     random_filelist = model_name + '_random_list'
     model=build_func_model(hidden_size=64)
     sgd = SGD(lr=0.04, momentum =0.5, clipvalue=0.01, decay=1e-8)
-    model.compile(loss={'ymean': 'mse','ystd': 'mse', 'nmean': 'mse','nstd': 'mse', 'ling_out': 'mse','QA_out': 'mse'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
+    model.compile(loss={'ymean': 'mse','ystd': 'mse', 'nmean': 'mse','nstd': 'mse', 'ling_out': 'mse','QA_out': 'mse'}, loss_weights={'ymean':1., 'ystd':.6, 'nmean':1., 'nstd':0.6, 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
     ymean_val, ystd_val, nmean_val, nstd_val = load_stats(data_path, val_list, int(feature_dimension[1]), ext)
     ling_val, qa_val, mean_val, std_val = load_tris_data(data_path, val_list, int(feature_dimension[0]), ext[0])
 
@@ -261,19 +261,21 @@ def train_tris(model_name, batch_size=256, nb_epoch=20, chunksize=20, feature_di
         val_score = model.evaluate({'ling_in':ling_val, 'QA_in':qa_val, 'AD_mean': mean_val, 'AD_std': std_val}, {'ymean':ymean_val, 'ystd':ystd_val, 'nmean':nmean_val, 'nstd':nstd_val, 'ling_out':ling_val, 'QA_out':qa_val},verbose=2)
         save_model(model, model_filepath)
         with open(logfile, 'a+') as logf:
-            logf.write('Y_MEAN: Validation score for Epoch %d: %f \n' % (epoch_num +1, val_score[0]))
-            logf.write('Y_STD: Validation score for Epoch %d: %f \n' % (epoch_num +1, val_score[1]))
-            logf.write('N_MEAN: Validation score for Epoch %d: %f \n' % (epoch_num +1, val_score[2]))
-            logf.write('N_STD:Validation score for Epoch %d: %f \n' % (epoch_num +1, val_score[3]))
+            logf.write(' Validation score for Epoch %d: %f \n' % (epoch_num +1, val_score[0]))
+            logf.write('Y_MEAN: Validation score for Epoch %d: %f \n' % (epoch_num +1, val_score[1]))
+            logf.write('Y_STD: Validation score for Epoch %d: %f \n' % (epoch_num +1, val_score[2]))
+            logf.write('N_MEAN: Validation score for Epoch %d: %f \n' % (epoch_num +1, val_score[3]))
+            logf.write('N_STD:Validation score for Epoch %d: %f \n' % (epoch_num +1, val_score[4]))
 
     ling_test, qa_test, mean_test, std_test = load_tris_data(data_path, test_list, int(feature_dimension[0]), ext[0])
     ymean_test, ystd_test, nmean_test, nstd_test = load_stats(data_path, test_list, int(feature_dimension[1]), ext)
     test_score = model.evaluate({'ling_in':ling_test, 'QA_in':qa_test, 'AD_mean': mean_test, 'AD_std': std_test}, {'ymean':ymean_test, 'ystd':ystd_test, 'nmean':nmean_test, 'nstd':nstd_test, 'ling_out':ling_test, 'QA_out':qa_test},verbose=2)
     with open(logfile, 'a+') as logf:
-        logf.write('Y_MEAN: Test score for Epoch %d: %f \n' % (epoch_num +1, test_score[0]))
-        logf.write('Y_STD: Test score for Epoch %d: %f \n' % (epoch_num +1, test_score[1]))
-        logf.write('N_MEAN: Test score for Epoch %d: %f \n' % (epoch_num +1, test_score[2]))
-        logf.write('N_STD: Test score for Epoch %d: %f \n' % (epoch_num +1, test_score[3]))
+        logf.write('Test score for Epoch %d: %f \n' % (epoch_num +1, test_score[0]))
+        logf.write('Y_MEAN: Test score for Epoch %d: %f \n' % (epoch_num +1, test_score[1]))
+        logf.write('Y_STD: Test score for Epoch %d: %f \n' % (epoch_num +1, test_score[2]))
+        logf.write('N_MEAN: Test score for Epoch %d: %f \n' % (epoch_num +1, test_score[3]))
+        logf.write('N_STD: Test score for Epoch %d: %f \n' % (epoch_num +1, test_score[4]))
 
     return
 
@@ -423,7 +425,7 @@ def predict_tris(data_path, test_filelist, model_dir, chkpt,  save_dir,ext, n_in
 
     model.load_weights(model_name+'.h5')
     print("Loaded model from disk")
-    model.compile(loss={'ymean': 'mse','ystd': 'mse', 'nmean': 'mse','nstd': 'mse', 'ling_out': 'mse','QA_out': 'mse'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
+    model.compile(loss={'ymean': 'mse','ystd': 'mse', 'nmean': 'mse','nstd': 'mse', 'ling_out': 'mse','QA_out': 'mse'}, loss_weights={'ymean':1., 'ystd':0.6, 'nmean':1., 'nstd':0.6, 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
 
     merlin_io = binary_io.BinaryIOCollection()
     with open(test_filelist, 'r') as fl:
@@ -452,13 +454,13 @@ if __name__=='__main__':
     batch_size = 64
     nb_epoch = 20
     chunksize=120
-    chkpt=8
+    chkpt=3
     model_name = 'slt_tris_norm_AD_1'
-    test_list= '/home/pbaljeka/TRIS_Exps2/cmu_us_slt-tris_utils/nodenames'
+    test_list= '/home/pbaljeka/TRIS_Exps3/utils/nodenames'
     #save_dir='/home2/pbaljeka/english_spasm_experiments/Data/predicted_features/spasm_mlp_tts_v2/'
-    save_dir='/home/pbaljeka/TRIS_Exps2/cmu_us_slt/festival/predicted_norm_nn_tris_trees/' +model_name + '/'
-    data_path='/home/pbaljeka/TRIS_Exps2/cmu_us_slt/festival/norm_nn_tris_trees/'
-    model_dir='/home/pbaljeka/TRIS_Exps2/cmu_us_slt-tris_utils/models/' + model_name + '/'
+    save_dir='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/predicted_norm_nn_tris_trees/' +model_name + '/'
+    data_path='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/norm_nn_tris_trees/'
+    model_dir='/home/pbaljeka/TRIS_Exps3/utils/models/' + model_name + '/'
     if option == 'train':
         train_tris(model_name, int(batch_size), int(nb_epoch), int(chunksize), feature_dimension, ext)
     elif option == "predict":

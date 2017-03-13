@@ -146,9 +146,10 @@ def do_acoustic_normalisation(data_dir, utils_dir, n_input_dim=52):
             mean=merlin_io.load_binary_file(utils_dir + stat  + '.mean', int(52))
             std=merlin_io.load_binary_file(utils_dir + stat  + '.std', int(52))
             for filename in f:
-                norm_data=normalize_data(in_data_dir, filename.strip(), mean, std, '.'+stat, feature_dimension=52)
-                outfile= out_data_dir + filename.strip() + '.' + stat
-                merlin_io.array_to_binary_file(norm_data, outfile)
+		for ext in ['.mean', '.std', '.ymean', '.ystd', '.nmean', '.nstd']:
+                    norm_data=normalize_data(in_data_dir, filename.strip(), mean, std, ext, feature_dimension=52)
+                    outfile= out_data_dir + filename.strip() + ext
+                    merlin_io.array_to_binary_file(norm_data, outfile)
 
 def do_acoustic_normalisation_prediction(data_dir, utils_dir, n_input_dim=52):
     logger=logging.getLogger("acoustic_normalization")
@@ -193,8 +194,8 @@ def do_acoustic_denormalisation_prediction(data_dir, utils_dir, model_name, n_in
 
 if __name__=="__main__":
     option=sys.argv[1]
-    data_dir="/home/pbaljeka/TRIS_Exps2/cmu_us_slt/festival/"
-    utils_dir="/home/pbaljeka/TRIS_Exps2/cmu_us_slt-tris_utils/"
+    data_dir="/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/"
+    utils_dir="/home/pbaljeka/TRIS_Exps3/utils/"
     model_name='slt_tris_norm_AD_1'
     if option=="normalize_train":
 	do_lab_normalization(data_dir, utils_dir, int(1488))
