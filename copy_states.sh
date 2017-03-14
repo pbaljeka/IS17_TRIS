@@ -2,7 +2,7 @@
 
 UTILSDIR='/home/pbaljeka/TRIS_Exps3/utils/'
 VOXDIR='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/'
-model_name='slt_tris_norm_AD_1'
+model_name='slt_tris_norm_AD_1-FIX'
 mkdir -p $VOXDIR/predicted_norm_nn_tris_trees/${model_name}
 mkdir -p $VOXDIR/predicted_norm_nn_tris_trees/un_norm_${model_name}
 for i in `cat ${UTILSDIR}/states`; 

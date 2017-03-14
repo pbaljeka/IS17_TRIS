@@ -149,30 +149,29 @@ def shuffle_filelist(filelist, output_file='mlp_random_list'): # To make the fil
 
 def build_func_model(hidden_size=64):
     ling_in = Input(shape=(711,), name='ling_in')
-    ling_emb = Dense(128, init='glorot_normal', activation='tanh')(ling_in)
-    ling_emb = Dense(64, init='glorot_normal', activation='tanh', name='ling_emb')(ling_emb)
-    ling_embD = Dense(128, init='glorot_normal', activation='tanh')(ling_emb)
-    ling_out = Dense(711, init='glorot_normal', activation='tanh', name='ling_out')(ling_embD)
+    ling_emb = Dense(128, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001))(ling_in)
+    ling_emb = Dense(64, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001), name='ling_emb')(ling_emb)
+    ling_embD = Dense(128, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001))(ling_emb)
+    ling_out = Dense(711, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001), name='ling_out')(ling_embD)
 
     QA_in = Input(shape=(777,), name='QA_in')
-    QA_emb = Dense(128, init='glorot_normal', activation='tanh')(QA_in)
-    QA_emb = Dense(70, init='glorot_normal', activation='tanh', name='QA_emb')(QA_emb)
-    QA_embD = Dense(128, init='glorot_normal', activation='tanh')(QA_emb)
-    QA_out = Dense(777, init='glorot_normal', activation='tanh', name='QA_out')(QA_embD)
+    QA_emb = Dense(128, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001))(QA_in)
+    QA_emb = Dense(70, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001), name='QA_emb')(QA_emb)
+    QA_embD = Dense(128, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001))(QA_emb)
+    QA_out = Dense(777, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001), name='QA_out')(QA_embD)
 
     AD_mean = Input(shape=(52,), name='AD_mean')
     AD_std = Input(shape=(52,), name='AD_std')
     x= merge([ling_emb, QA_emb, AD_mean, AD_std], mode='concat')
-    x = Dense(hidden_size, init='glorot_normal', activation='tanh')(x)
-    x = Dense(hidden_size, init='glorot_normal', activation='tanh')(x)
-    x = Dense(hidden_size, init='glorot_normal', activation='tanh')(x)
-    x = Dense(hidden_size, init='glorot_normal', activation='tanh')(x)
-    x = Dense(hidden_size, init='glorot_normal', activation='linear')(x)
+    x = Dense(hidden_size, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001))(x)
+    x = Dense(hidden_size, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001))(x)
+    x = Dense(hidden_size, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001))(x)
+    x = Dense(hidden_size, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001))(x)
 
-    ymean = Dense(52, init='glorot_normal', activation='linear', name='ymean')(x)
-    ystd = Dense(52, init='glorot_normal', activation='linear', name='ystd')(x)
-    nmean = Dense(52, init='glorot_normal', activation='linear', name='nmean')(x)
-    nstd = Dense(52, init='glorot_normal', activation='linear', name='nstd')(x)
+    ymean = Dense(52, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001), name='ymean')(x)
+    ystd = Dense(52, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001), name='ystd')(x)
+    nmean = Dense(52, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001), name='nmean')(x)
+    nstd = Dense(52, init='glorot_normal', activation='tanh', W_regularizer=l2(0.000001), name='nstd')(x)
     model=Model(input=[ling_in, QA_in, AD_mean, AD_std], output=[ymean, ystd, nmean, nstd, ling_out, QA_out])
     model.summary()
     return model
@@ -225,9 +224,9 @@ def train_tris(model_name, batch_size=256, nb_epoch=20, chunksize=20, feature_di
     test_list = utils_path + 'test_list'
     val_list = utils_path + 'val_list'
     random_filelist = model_name + '_random_list'
-    model=build_func_model(hidden_size=128)
+    model=build_func_model(hidden_size=64)
     sgd = SGD(lr=0.04, momentum =0.5, clipvalue=0.01, decay=1e-8)
-    model.compile(loss={'ymean': 'mean_sum_error','ystd': 'mean_sum_error', 'nmean': 'mean_sum_error','nstd': 'mean_sum_error', 'ling_out': 'mean_sum_error','QA_out': 'mean_sum_error'}, loss_weights={'ymean':1., 'ystd':.6, 'nmean':1., 'nstd':0.6, 'ling_out':0.1, 'QA_out':0.1},  optimizer=sgd)
+    model.compile(loss={'ymean': 'mse','ystd': 'mse', 'nmean': 'mse','nstd': 'mse', 'ling_out': 'mse','QA_out': 'mse'}, loss_weights={'ymean':1., 'ystd':.6, 'nmean':1., 'nstd':0.6, 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
     ymean_val, ystd_val, nmean_val, nstd_val = load_stats(data_path, val_list, int(feature_dimension[1]), ext)
     ling_val, qa_val, mean_val, std_val = load_tris_data(data_path, val_list, int(feature_dimension[0]), ext[0])
 
@@ -306,7 +305,7 @@ def adapt_tris(model_name, chkpt, batch_size=256, nb_epoch=20, chunksize=20, fea
     model.load_weights(model_name_c+".h5")
     print("Loaded model from disk")
 
-    model.compile(loss={'ymean': 'mean_sum_error','ystd': 'mean_sum_error', 'nmean': 'mean_sum_error','nstd': 'mean_sum_error', 'ling_out': 'mean_sum_error','QA_out': 'mean_sum_error'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
+    model.compile(loss={'ymean': 'mse','ystd': 'mse', 'nmean': 'mse','nstd': 'mse', 'ling_out': 'mse','QA_out': 'mse'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
 
     for epoch_num in range(nb_epoch):
         print ("Epoch %d / %d" % (epoch_num + 1, nb_epoch) )
@@ -373,7 +372,7 @@ def retrain_tris(model_name, chkpt, batch_size=256, nb_epoch=20, chunksize=20, f
     model.load_weights(model_name_c+".h5")
     print("Loaded model from disk")
 
-    model.compile(loss={'ymean': 'mean_sum_error','ystd': 'mean_sum_error', 'nmean': 'mean_sum_error','nstd': 'mean_sum_error', 'ling_out': 'mean_sum_error','QA_out': 'mean_sum_error'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
+    model.compile(loss={'ymean': 'mse','ystd': 'mse', 'nmean': 'mse','nstd': 'mse', 'ling_out': 'mse','QA_out': 'mse'}, loss_weights={'ymean':1., 'ystd':1., 'nmean':1., 'nstd':1., 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
 
     for epoch_num in range(nb_epoch):
         print ("Epoch %d / %d" % (epoch_num + 1, nb_epoch) )
@@ -426,7 +425,7 @@ def predict_tris(data_path, test_filelist, model_dir, chkpt,  save_dir,ext, n_in
 
     model.load_weights(model_name+'.h5')
     print("Loaded model from disk")
-    model.compile(loss={'ymean': 'mean_sum_error','ystd': 'mean_sum_error', 'nmean': 'mean_sum_error','nstd': 'mean_sum_error', 'ling_out': 'mean_sum_error','QA_out': 'mean_sum_error'}, loss_weights={'ymean':1., 'ystd':0.6, 'nmean':1., 'nstd':0.6, 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
+    model.compile(loss={'ymean': 'mse','ystd': 'mse', 'nmean': 'mse','nstd': 'mse', 'ling_out': 'mse','QA_out': 'mse'}, loss_weights={'ymean':1., 'ystd':0.6, 'nmean':1., 'nstd':0.6, 'ling_out':0.1, 'QA_out':0.1},  optimizer='adam')
 
     merlin_io = binary_io.BinaryIOCollection()
     with open(test_filelist, 'r') as fl:
@@ -456,7 +455,7 @@ if __name__=='__main__':
     nb_epoch = 20
     chunksize=100
     chkpt=3
-    model_name = 'slt_tris_norm_AD_1-FIX-sgd-mean_sum_error'
+    model_name = 'slt_tris_norm_AD_1-FIX'
     test_list= '/home/pbaljeka/TRIS_Exps3/utils/nodenames'
     #save_dir='/home2/pbaljeka/english_spasm_experiments/Data/predicted_features/spasm_mlp_tts_v2/'
     save_dir='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/predicted_norm_nn_tris_trees/' +model_name + '/'

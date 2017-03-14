@@ -198,7 +198,7 @@ if __name__=="__main__":
     option=sys.argv[1]
     data_dir="/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/"
     utils_dir="/home/pbaljeka/TRIS_Exps3/utils/"
-    model_name='slt_tris_norm_AD_1'
+    model_name='slt_tris_norm_AD_1-FIX'
     if option=="normalize_train":
 	do_lab_normalization(data_dir, utils_dir, int(1488))
     	calc_acoustic_stats(data_dir + '/nn_tris/', utils_dir)
