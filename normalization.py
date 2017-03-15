@@ -125,35 +125,20 @@ def do_lab_normalization_prediction(data_dir, utils_dir, n_input_dim=1488):
 def normalize_data(data_path, filename, mean, std, ext, feature_dimension=52):
     merlin_io=binary_io.BinaryIOCollection()
     data_mat=merlin_io.load_binary_file(data_path + filename.strip() + ext, feature_dimension)
-    norm_data =  (data_mat - np.tile(mean, (data_mat.shape[0],1)))/ (np.tile(std, (data_mat.shape[0],1)) + 0.00000001)
+    mean_mat= np.tile(mean, (data_mat.shape[0], 1))
+    std_mat = np.tile(std, (data_mat.shape[0],1 )) + 0.000000001
+    norm_data =  (data_mat - mean_mat)/ std_mat
     return norm_data
 
 def denormalize_data(data_path, filename, mean, std, ext, feature_dimension=52):
     merlin_io=binary_io.BinaryIOCollection()
     data_mat=merlin_io.load_binary_file(data_path + filename.strip() + ext, feature_dimension)
-    un_norm_data =  (data_mat* (np.tile(std, (data_mat.shape[0],1))+ 0.00000001)) + np.tile(mean, (data_mat.shape[0],1))
+    mean_mat= np.tile(mean, (data_mat.shape[0], 1))
+    std_mat = np.tile(std, (data_mat.shape[0],1 )) + 0.000000001
+    un_norm_data =  (data_mat* std_mat) + np.tile(mean, (data_mat.shape[0],1))
     return un_norm_data
 
-def do_acoustic_normalisation(data_dir, utils_dir, n_input_dim=52):
-    logger=logging.getLogger("acoustic_normalization")
-    logger.info('normalising acoustic (output) features using MVN')
-    all_list=utils_dir +'/all_list'
-    in_data_dir= data_dir + '/nn_tris/'
-    out_data_dir=data_dir + '/norm_nn_tris/'
-    if not os.path.exists(out_data_dir):
-        os.makedirs(out_data_dir)
-    merlin_io=binary_io.BinaryIOCollection()
-    for stat in ['mean', 'std']:
-        with open(all_list, 'r') as f:
-            mean=merlin_io.load_binary_file(utils_dir + stat  + '.mean', int(52))
-            std=merlin_io.load_binary_file(utils_dir + stat  + '.std', int(52))
-            for filename in f:
-		for ext in ['.mean', '.std', '.ymean', '.ystd', '.nmean', '.nstd']:
-                    norm_data=normalize_data(in_data_dir, filename.strip(), mean, std, ext, feature_dimension=52)
-                    outfile= out_data_dir + filename.strip() + ext
-                    merlin_io.array_to_binary_file(norm_data, outfile)
-
-def do_acoustic_normalisation_prediction(data_dir, utils_dir, n_input_dim=52):
+def do_acoustic_normalisation_trees(data_dir, utils_dir, n_input_dim=52):
     logger=logging.getLogger("acoustic_normalization")
     logger.info('normalising acoustic (output) features using MVN')
     all_list=utils_dir +'/nodenames'
@@ -164,41 +149,101 @@ def do_acoustic_normalisation_prediction(data_dir, utils_dir, n_input_dim=52):
 
     merlin_io=binary_io.BinaryIOCollection()
     for stat in ['mean', 'std']:
+	print(stat + '.std')
+	mean=merlin_io.load_binary_file(utils_dir + stat  + '.mean', int(52))
+        std=merlin_io.load_binary_file(utils_dir + stat  + '.std', int(52))
         with open(all_list, 'r') as f:
-            mean=merlin_io.load_binary_file(utils_dir + stat  + '.mean', int(52))
-            std=merlin_io.load_binary_file(utils_dir + stat  + '.std', int(52))
-
             for filename in f:
-                for ext in ['mean', 'std']:
-                    norm_data=normalize_data(in_data_dir, filename.strip(), mean, std, '.'+ext, feature_dimension=52)
-                    outfile= out_data_dir + filename.strip() + '.' + ext
-                    merlin_io.array_to_binary_file(norm_data, outfile)
+		 norm_data=normalize_data(in_data_dir, filename.strip(), mean, std, '.'+stat, feature_dimension=52)
+                 outfile= out_data_dir + filename.strip() + '.' + stat
+                 merlin_io.array_to_binary_file(norm_data, outfile)
 
 
-def do_acoustic_denormalisation_prediction(data_dir, utils_dir, model_name, n_input_dim=52):
+def do_acoustic_denormalisation_trees(data_dir, utils_dir, n_input_dim=52):
     logger=logging.getLogger("acoustic_denormalization")
     logger.info('normalising acoustic (output) features using MVN')
-    all_list=utils_dir +'/senones'
-    in_data_dir= data_dir + '/predicted_norm_nn_tris_trees/' + model_name + '/'
-    out_data_dir=data_dir + '/predicted_norm_nn_tris_trees/un_norm_' + model_name + '/'
+    all_list=utils_dir +'/nodenames'
+    in_data_dir=data_dir + '/norm_nn_tris_trees/'
+    out_data_dir=data_dir + '/check_denorm_trees/'
+    #in_data_dir= data_dir + '/predicted_norm_nn_tris_trees/' + model_name + '/'
+    #out_data_dir=data_dir + '/predicted_norm_nn_tris_trees/un_norm_'+ model_name + '/'
     if not os.path.exists(out_data_dir):
         os.makedirs(out_data_dir)
 
     merlin_io=binary_io.BinaryIOCollection()
     for stat in ['mean', 'std']:
+        mean=merlin_io.load_binary_file(utils_dir + stat  + '.mean', int(52))
+        std=merlin_io.load_binary_file(utils_dir + stat  + '.std', int(52))
         with open(all_list, 'r') as f:
-            mean=merlin_io.load_binary_file(utils_dir + stat  + '.mean', int(52))
-            std=merlin_io.load_binary_file(utils_dir + stat  + '.std', int(52))
             for filename in f:
                 denorm_data=denormalize_data(in_data_dir, filename.strip(), mean, std, '.'+stat, feature_dimension=52)
                 outfile= out_data_dir + filename.strip() + '.' + stat
                 merlin_io.array_to_binary_file(denorm_data, outfile)
 
+def do_acoustic_normalisation_coeffs(data_dir, utils_dir, n_input_dim=52):
+    logger=logging.getLogger("acoustic_normalization")
+    logger.info('normalising acoustic (output) features using MVN')
+    all_list=utils_dir +'/all_list'
+    in_data_dir= data_dir + '/nn_tris/'
+    out_data_dir=data_dir + '/norm_nn_tris/'
+    if not os.path.exists(out_data_dir):
+        os.makedirs(out_data_dir)
+    merlin_io=binary_io.BinaryIOCollection()
+    for ext in ['.mean','.ymean', '.nmean']:
+        mean=merlin_io.load_binary_file(utils_dir + 'mean.mean', int(52))
+        std=merlin_io.load_binary_file(utils_dir +'mean.std', int(52))
+        with open(all_list, 'r') as f:
+	    for filename in f:
+		norm_data=normalize_data(in_data_dir, filename.strip(), mean, std, ext, feature_dimension=52)
+                outfile= out_data_dir + filename.strip() + ext
+                merlin_io.array_to_binary_file(norm_data, outfile)
+    for ext in ['.std','.ystd', '.nstd']:
+        mean=merlin_io.load_binary_file(utils_dir + 'std.mean', int(52))
+        std=merlin_io.load_binary_file(utils_dir +'std.std', int(52))
+        with open(all_list, 'r') as f:
+	    for filename in f:
+		norm_data=normalize_data(in_data_dir, filename.strip(), mean, std, ext, feature_dimension=52)
+                outfile= out_data_dir + filename.strip() + ext
+                merlin_io.array_to_binary_file(norm_data, outfile)
+
+
+def do_acoustic_denormalisation_coeffs(data_dir, utils_dir, n_input_dim=52):
+    logger=logging.getLogger("acoustic_denormalization")
+    logger.info('normalising acoustic (output) features using MVN')
+    all_list=utils_dir +'/all_list'
+    in_data_dir=data_dir + '/norm_nn_tris/'
+    out_data_dir=data_dir + '/check_denorm/'
+    #in_data_dir= data_dir + '/predicted_norm_nn_tris_trees/' + model_name + '/'
+    #out_data_dir=data_dir + '/predicted_norm_nn_tris_trees/un_norm_' + model_name + '/'
+    if not os.path.exists(out_data_dir):
+        os.makedirs(out_data_dir)
+
+    merlin_io=binary_io.BinaryIOCollection()
+    for ext in ['.mean','.ymean', '.nmean']:
+        mean=merlin_io.load_binary_file(utils_dir + 'mean.mean', int(52))
+        std=merlin_io.load_binary_file(utils_dir +'mean.std', int(52))
+        with open(all_list, 'r') as f:
+	    for filename in f:
+		denorm_data=denormalize_data(in_data_dir, filename.strip(), mean, std, ext, feature_dimension=52)
+                outfile= out_data_dir + filename.strip() + ext
+                merlin_io.array_to_binary_file(denorm_data, outfile)
+    for ext in ['.std','.ystd', '.nstd']:
+        mean=merlin_io.load_binary_file(utils_dir + 'std.mean', int(52))
+        std=merlin_io.load_binary_file(utils_dir +'std.std', int(52))
+        with open(all_list, 'r') as f:
+	    for filename in f:
+		denorm_data=denormalize_data(in_data_dir, filename.strip(), mean, std, ext, feature_dimension=52)
+                outfile= out_data_dir + filename.strip() + ext
+                merlin_io.array_to_binary_file(denorm_data, outfile)
+    
+
+
+
 if __name__=="__main__":
     option=sys.argv[1]
     data_dir="/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/"
     utils_dir="/home/pbaljeka/TRIS_Exps3/utils/"
-    model_name='slt_tris_norm_AD_1-FIX'
+    model_name='slt_tris_norm_AD_1-FIX-sgd-mean_sum_error'
     if option=="normalize_train":
 	do_lab_normalization(data_dir, utils_dir, int(1488))
     	calc_acoustic_stats(data_dir + '/nn_tris/', utils_dir)
@@ -208,4 +253,9 @@ if __name__=="__main__":
 	do_acoustic_normalisation_prediction(data_dir, utils_dir)
     elif option =="denormalize":
 	do_acoustic_denormalisation_prediction(data_dir, utils_dir, model_name)
+    elif option=="check":
+	do_acoustic_normalisation_trees(data_dir, utils_dir)
+	do_acoustic_denormalisation_trees(data_dir, utils_dir)
+	do_acoustic_normalisation_coeffs(data_dir, utils_dir)
+	do_acoustic_denormalisation_coeffs(data_dir, utils_dir)
 
