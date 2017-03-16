@@ -456,7 +456,7 @@ if __name__=='__main__':
     batch_size = 256
     nb_epoch = 20
     chunksize=100
-    chkpt=4
+    chkpt=15
     model_name = 'slt_tris_norm_sgd-mean_sum_error'
     test_list= '/home/pbaljeka/TRIS_Exps3/utils/nodenames'
     #save_dir='/home2/pbaljeka/english_spasm_experiments/Data/predicted_features/spasm_mlp_tts_v2/'

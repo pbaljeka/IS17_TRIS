@@ -41,3 +41,6 @@ For clb:
 4. python keras_tris_mlp.py adapt
 5. repeats steps from above from 9 to 12.
 
+
+For slt LSTM:
+1.Reverese all tris feats

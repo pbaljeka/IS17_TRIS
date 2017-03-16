@@ -159,14 +159,14 @@ def do_acoustic_normalisation_trees(data_dir, utils_dir, n_input_dim=52):
                  merlin_io.array_to_binary_file(norm_data, outfile)
 
 
-def do_acoustic_denormalisation_trees(data_dir, utils_dir, n_input_dim=52):
+def do_acoustic_denormalisation_trees(data_dir, utils_dir, model_name, n_input_dim=52):
     logger=logging.getLogger("acoustic_denormalization")
     logger.info('normalising acoustic (output) features using MVN')
-    all_list=utils_dir +'/nodenames'
-    in_data_dir=data_dir + '/norm_nn_tris_trees/'
-    out_data_dir=data_dir + '/check_denorm_trees/'
-    #in_data_dir= data_dir + '/predicted_norm_nn_tris_trees/' + model_name + '/'
-    #out_data_dir=data_dir + '/predicted_norm_nn_tris_trees/un_norm_'+ model_name + '/'
+    all_list=utils_dir +'/senones'
+    #in_data_dir=data_dir + '/norm_nn_tris_trees/'
+    #out_data_dir=data_dir + '/check_denorm_trees/'
+    in_data_dir= data_dir + '/predicted_norm_nn_tris_trees/' + model_name + '/'
+    out_data_dir=data_dir + '/predicted_norm_nn_tris_trees/un_norm_'+ model_name + '/'
     if not os.path.exists(out_data_dir):
         os.makedirs(out_data_dir)
 
@@ -243,7 +243,7 @@ if __name__=="__main__":
     option=sys.argv[1]
     data_dir="/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/"
     utils_dir="/home/pbaljeka/TRIS_Exps3/utils/"
-    model_name='slt_tris_norm_AD_1-FIX-sgd-mean_sum_error'
+    model_name='slt_tris_norm_sgd-mean_sum_error'
     if option=="normalize_train":
 	do_lab_normalization(data_dir, utils_dir, int(1488))
     	#calc_acoustic_stats(data_dir + '/nn_tris/', utils_dir)
@@ -252,7 +252,9 @@ if __name__=="__main__":
 	do_lab_normalization_prediction(data_dir, utils_dir, int(1488))
 	#do_acoustic_normalisation_prediction(data_dir, utils_dir)
     elif option =="denormalize":
-	do_acoustic_denormalisation_prediction(data_dir, utils_dir, model_name)
+	#do_acoustic_denormalisation_prediction(data_dir, utils_dir, model_name)
+	do_acoustic_denormalisation_trees(data_dir, utils_dir, model_name)
+    
     elif option=="check":
 	do_acoustic_normalisation_trees(data_dir, utils_dir)
 	do_acoustic_denormalisation_trees(data_dir, utils_dir)
