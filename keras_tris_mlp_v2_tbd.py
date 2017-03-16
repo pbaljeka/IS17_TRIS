@@ -220,7 +220,7 @@ def save_model(model, model_filepath):# This does early stopping and saves the m
 
 def train_tris(model_name, batch_size=256, nb_epoch=20, chunksize=20, feature_dimension=[1488, 52], ext=['.tris', '.ymean', '.ystd', '.nmean', '.nstd']):
     utils_path='/home/pbaljeka/TRIS_Exps3/utils/'
-    data_path='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/nn_tris/'
+    data_path='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/norm_nn_tris/'
     train_list = utils_path + 'all_list'
     test_list = utils_path + 'test_list'
     val_list = utils_path + 'val_list'
@@ -457,11 +457,11 @@ if __name__=='__main__':
     nb_epoch = 20
     chunksize=100
     chkpt=4
-    model_name = 'slt_tris_UNnorm_sgd-mean_sum_error'
+    model_name = 'slt_tris_norm_sgd-mean_sum_error'
     test_list= '/home/pbaljeka/TRIS_Exps3/utils/nodenames'
     #save_dir='/home2/pbaljeka/english_spasm_experiments/Data/predicted_features/spasm_mlp_tts_v2/'
     save_dir='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/predicted_norm_nn_tris_trees/' +model_name + '/'
-    data_path='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/nn_tris_trees/'
+    data_path='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/norm_nn_tris_trees/'
     model_dir='/home/pbaljeka/TRIS_Exps3/utils/models/' + model_name + '/'
     if option == 'train':
         train_tris(model_name, int(batch_size), int(nb_epoch), int(chunksize), feature_dimension, ext)

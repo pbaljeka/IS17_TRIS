@@ -32,3 +32,12 @@ python normalization.py denormalize
 
 12.Make rawparams and params files
 scripts/make_params.sh
+
+
+For clb:
+1. build_cg_voice, cluster on 5 mons data ehmm on all
+2. copy slt_mcep.tree to festival/trees
+3. copy tris scripts and follow steps above to extract feats till step8.
+4. python keras_tris_mlp.py adapt
+5. repeats steps from above from 9 to 12.
+

@@ -4,10 +4,10 @@ VOICEDIR='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/'
 UTILSDIR='/home/pbaljeka/TRIS_Exps3/utils/'
 voxname='cmu_us_slt'
 
-rm *_st
+rm -f  *_st
 rm -f cmu_us_slt_mcep.rawparams
 rm -f patch
-python make_rp_td.py
+python make_rp_td2.py
 sed -n 8949p $UTILSDIR/cmu_us_slt_mcep.rawparams>patch
 sed -i '8949d' cmu_us_slt_mcep.rawparams
 sed -i 8948rpatch cmu_us_slt_mcep.rawparams

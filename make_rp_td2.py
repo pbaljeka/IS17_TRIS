@@ -88,7 +88,7 @@ def make_rawparams_file(indir, outfile, s_dict, num_senones, true_mean, true_std
 
 if __name__=="__main__":
     main_path='/home/pbaljeka/TRIS_Exps3/cmu_us_slt/festival/'
-    indir=main_path +'/predicted_norm_nn_tris_trees/un_norm_slt_tris_norm_AD_1-FIX-sgd-mean_sum_error/'
+    indir=main_path +'/predicted_norm_nn_tris_trees/slt_tris_UNnorm_sgd-mean_sum_error/'
     outfile='cmu_us_slt_mcep.rawparams'
     filelist='/home/pbaljeka/TRIS_Exps3/utils/senones'
     rawparams='/home/pbaljeka/TRIS_Exps3/utils/cmu_us_slt_mcep.rawparams'

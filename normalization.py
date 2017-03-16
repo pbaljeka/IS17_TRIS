@@ -246,11 +246,11 @@ if __name__=="__main__":
     model_name='slt_tris_norm_AD_1-FIX-sgd-mean_sum_error'
     if option=="normalize_train":
 	do_lab_normalization(data_dir, utils_dir, int(1488))
-    	calc_acoustic_stats(data_dir + '/nn_tris/', utils_dir)
-	do_acoustic_normalisation(data_dir, utils_dir)
+    	#calc_acoustic_stats(data_dir + '/nn_tris/', utils_dir)
+	#do_acoustic_normalisation(data_dir, utils_dir)
     elif option=="normalize_predict":
 	do_lab_normalization_prediction(data_dir, utils_dir, int(1488))
-	do_acoustic_normalisation_prediction(data_dir, utils_dir)
+	#do_acoustic_normalisation_prediction(data_dir, utils_dir)
     elif option =="denormalize":
 	do_acoustic_denormalisation_prediction(data_dir, utils_dir, model_name)
     elif option=="check":
